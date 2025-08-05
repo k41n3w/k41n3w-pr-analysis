@@ -190,7 +190,7 @@ export function PRDetailScreen({ pr, token, repositoryFullName, onBack }: PRDeta
               <div className="space-y-2">
                 <h4 className="font-medium">Descrição</h4>
                 <div className="bg-muted/30 p-3 rounded-md text-sm prose prose-sm max-w-none dark:prose-invert">
-                  <ReactMarkdown>{pr.body}</ReactMarkdown>
+                  <ReactMarkdown>{pr.body.replace(/<!--[\s\S]*?-->/g, '')}</ReactMarkdown>
                 </div>
               </div>
             )}

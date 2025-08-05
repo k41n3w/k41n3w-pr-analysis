@@ -146,9 +146,6 @@ export function PRTable({ prs, reviews, onPRClick }: PRTableProps) {
             <SortableHeader field="status">Status</SortableHeader>
             <SortableHeader field="created_at">Abertura</SortableHeader>
             <SortableHeader field="time_open">Tempo</SortableHeader>
-            <SortableHeader field="commits">Commits</SortableHeader>
-            <SortableHeader field="lines">Linhas</SortableHeader>
-            <TableHead>Labels</TableHead>
             <SortableHeader field="reviews">Reviewers</SortableHeader>
             <TableHead>Ações</TableHead>
           </TableRow>
@@ -208,56 +205,21 @@ export function PRTable({ prs, reviews, onPRClick }: PRTableProps) {
                 </span>
               </TableCell>
               
-              <TableCell>
-                <div className="flex items-center gap-1">
-                  <GitCommit className="w-3 h-3" />
-                  <span className="text-sm">{pr.commits || 'N/A'}</span>
-                </div>
-              </TableCell>
               
               <TableCell>
-                <div className="flex items-center gap-2 text-xs">
-                  <div className="flex items-center gap-1 text-github-green">
-                    <Plus className="w-3 h-3" />
-                    {pr.additions || 0}
-                  </div>
-                  <div className="flex items-center gap-1 text-github-red">
-                    <Minus className="w-3 h-3" />
-                    {pr.deletions || 0}
-                  </div>
-                </div>
-              </TableCell>
-              
-              <TableCell>
-                <div className="flex gap-1 flex-wrap max-w-32">
-                  {pr.labels?.slice(0, 2).map((label) => (
-                    <Badge 
-                      key={label.name} 
-                      variant="secondary" 
-                      className="text-xs"
-                      style={{ backgroundColor: `#${label.color}20`, color: `#${label.color}` }}
-                    >
-                      {label.name}
-                    </Badge>
+                <div className="flex flex-wrap gap-1">
+                  {reviews.get(pr.number)?.map((review, index) => (
+                    <Avatar key={index} className="w-6 h-6">
+                      <AvatarImage src={review.user.avatar_url} alt={review.user.login} />
+                      <AvatarFallback className="text-xs">{review.user.login.charAt(0).toUpperCase()}</AvatarFallback>
+                    </Avatar>
                   ))}
-                  {pr.labels && pr.labels.length > 2 && (
-                    <Badge variant="secondary" className="text-xs">
-                      +{pr.labels.length - 2}
-                    </Badge>
-                  )}
-                </div>
-              </TableCell>
-              
-              <TableCell>
-                <div className="space-y-1">
-                  <div className="text-xs text-muted-foreground">
-                    <strong>Solicitados:</strong><br />
-                    {getRequestedReviewers(pr)}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    <strong>Revisaram:</strong><br />
-                    {getReviewers(pr)}
-                  </div>
+                  {pr.requested_reviewers?.map((reviewer, index) => (
+                    <Avatar key={`req-${index}`} className="w-6 h-6 ring-2 ring-yellow-500">
+                      <AvatarImage src={reviewer.avatar_url} alt={reviewer.login} />
+                      <AvatarFallback className="text-xs bg-yellow-100">{reviewer.login.charAt(0).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                  ))}
                 </div>
               </TableCell>
               
@@ -285,7 +247,7 @@ export function PRTable({ prs, reviews, onPRClick }: PRTableProps) {
           ))}
           {getSortedPRs().length === 0 && (
             <TableRow>
-              <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
+              <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                 Nenhum Pull Request encontrado no período selecionado
               </TableCell>
             </TableRow>
