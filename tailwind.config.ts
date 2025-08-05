@@ -61,7 +61,28 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				github: {
+					green: 'hsl(var(--github-green))',
+					blue: 'hsl(var(--github-blue))',
+					orange: 'hsl(var(--github-orange))',
+					red: 'hsl(var(--github-red))',
+					purple: 'hsl(var(--github-purple))',
+					yellow: 'hsl(var(--github-yellow))'
 				}
+			},
+			backgroundImage: {
+				'gradient-primary': 'var(--gradient-primary)',
+				'gradient-data': 'var(--gradient-data)',
+				'gradient-success': 'var(--gradient-success)'
+			},
+			boxShadow: {
+				'card': 'var(--shadow-card)',
+				'elevated': 'var(--shadow-elevated)'
+			},
+			transitionTimingFunction: {
+				'smooth': 'var(--transition-smooth)',
+				'bounce': 'var(--transition-bounce)'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
