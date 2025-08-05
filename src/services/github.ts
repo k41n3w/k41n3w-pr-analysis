@@ -65,7 +65,25 @@ class GitHubService {
           return createdAt >= startDate && createdAt <= endDate;
         });
 
-        allPRs = [...allPRs, ...filteredPRs];
+        // Enriquecer PRs com informações adicionais
+        const enrichedPRs = await Promise.all(
+          filteredPRs.map(async (pr) => {
+            try {
+              const detailedPR = await this.getPullRequestDetails(owner, repo, pr.number);
+              return {
+                ...pr,
+                additions: detailedPR.additions,
+                deletions: detailedPR.deletions,
+                commits: detailedPR.commits
+              };
+            } catch (error) {
+              console.warn(`Erro ao obter detalhes do PR #${pr.number}:`, error);
+              return pr;
+            }
+          })
+        );
+
+        allPRs = [...allPRs, ...enrichedPRs];
         
         // Se todos os PRs da página são anteriores ao período, parar
         const oldestPR = prs[prs.length - 1];

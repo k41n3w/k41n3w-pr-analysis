@@ -1,8 +1,9 @@
+import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ExternalLink, GitCommit, Plus, Minus, Calendar, User } from 'lucide-react';
+import { ExternalLink, GitCommit, Plus, Minus, Calendar, User, ArrowUpDown } from 'lucide-react';
 import { format } from 'date-fns';
 import { pt } from 'date-fns/locale';
 import { GitHubPullRequest, GitHubReview } from '@/types/github';
@@ -14,7 +15,12 @@ interface PRTableProps {
   onPRClick: (pr: GitHubPullRequest) => void;
 }
 
+type SortField = 'number' | 'title' | 'author' | 'status' | 'created_at' | 'time_open' | 'commits' | 'lines' | 'reviews';
+type SortDirection = 'asc' | 'desc';
+
 export function PRTable({ prs, reviews, onPRClick }: PRTableProps) {
+  const [sortField, setSortField] = useState<SortField>('created_at');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const getStatusText = (pr: GitHubPullRequest): string => {
     if (pr.merged_at) return 'Mergeado';
     if (pr.state === 'closed') return 'Fechado';
@@ -43,25 +49,112 @@ export function PRTable({ prs, reviews, onPRClick }: PRTableProps) {
     return pr.requested_reviewers?.map(r => r.login).join(', ') || 'Nenhum';
   };
 
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const getSortedPRs = () => {
+    return [...prs].sort((a, b) => {
+      let aValue: any;
+      let bValue: any;
+
+      switch (sortField) {
+        case 'number':
+          aValue = a.number;
+          bValue = b.number;
+          break;
+        case 'title':
+          aValue = a.title.toLowerCase();
+          bValue = b.title.toLowerCase();
+          break;
+        case 'author':
+          aValue = a.user.login.toLowerCase();
+          bValue = b.user.login.toLowerCase();
+          break;
+        case 'status':
+          aValue = getStatusText(a);
+          bValue = getStatusText(b);
+          break;
+        case 'created_at':
+          aValue = new Date(a.created_at).getTime();
+          bValue = new Date(b.created_at).getTime();
+          break;
+        case 'time_open':
+          aValue = getTimeOpenValue(a);
+          bValue = getTimeOpenValue(b);
+          break;
+        case 'commits':
+          aValue = a.commits || 0;
+          bValue = b.commits || 0;
+          break;
+        case 'lines':
+          aValue = (a.additions || 0) + (a.deletions || 0);
+          bValue = (b.additions || 0) + (b.deletions || 0);
+          break;
+        case 'reviews':
+          aValue = (reviews.get(a.number) || []).length;
+          bValue = (reviews.get(b.number) || []).length;
+          break;
+        default:
+          return 0;
+      }
+
+      if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+      return 0;
+    });
+  };
+
+  const getTimeOpenValue = (pr: GitHubPullRequest): number => {
+    const startDate = new Date(pr.created_at);
+    const endDate = pr.merged_at 
+      ? new Date(pr.merged_at) 
+      : pr.closed_at 
+      ? new Date(pr.closed_at) 
+      : new Date();
+    
+    return (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
+  };
+
+  const SortableHeader = ({ field, children }: { field: SortField; children: React.ReactNode }) => (
+    <TableHead>
+      <Button
+        variant="ghost"
+        className="h-auto p-0 font-semibold hover:bg-transparent"
+        onClick={() => handleSort(field)}
+      >
+        <div className="flex items-center gap-1">
+          {children}
+          <ArrowUpDown className="w-3 h-3" />
+        </div>
+      </Button>
+    </TableHead>
+  );
+
   return (
     <div className="rounded-md border bg-background/50">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>PR</TableHead>
-            <TableHead>Autor</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Abertura</TableHead>
-            <TableHead>Tempo</TableHead>
-            <TableHead>Commits</TableHead>
-            <TableHead>Linhas</TableHead>
+            <SortableHeader field="number">PR</SortableHeader>
+            <SortableHeader field="author">Autor</SortableHeader>
+            <SortableHeader field="status">Status</SortableHeader>
+            <SortableHeader field="created_at">Abertura</SortableHeader>
+            <SortableHeader field="time_open">Tempo</SortableHeader>
+            <SortableHeader field="commits">Commits</SortableHeader>
+            <SortableHeader field="lines">Linhas</SortableHeader>
             <TableHead>Labels</TableHead>
-            <TableHead>Reviewers</TableHead>
+            <SortableHeader field="reviews">Reviewers</SortableHeader>
             <TableHead>Ações</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {prs.map((pr) => (
+          {getSortedPRs().map((pr) => (
             <TableRow key={pr.id} className="hover:bg-muted/50">
               <TableCell>
                 <div className="space-y-1">
@@ -118,7 +211,7 @@ export function PRTable({ prs, reviews, onPRClick }: PRTableProps) {
               <TableCell>
                 <div className="flex items-center gap-1">
                   <GitCommit className="w-3 h-3" />
-                  <span className="text-sm">{pr.commits || 0}</span>
+                  <span className="text-sm">{pr.commits || 'N/A'}</span>
                 </div>
               </TableCell>
               
@@ -190,7 +283,7 @@ export function PRTable({ prs, reviews, onPRClick }: PRTableProps) {
               </TableCell>
             </TableRow>
           ))}
-          {prs.length === 0 && (
+          {getSortedPRs().length === 0 && (
             <TableRow>
               <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
                 Nenhum Pull Request encontrado no período selecionado

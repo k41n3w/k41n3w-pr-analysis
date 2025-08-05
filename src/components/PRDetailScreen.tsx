@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { pt } from 'date-fns/locale';
+import ReactMarkdown from 'react-markdown';
 import { 
   GitHubPullRequest, 
   GitHubReview, 
@@ -188,8 +189,8 @@ export function PRDetailScreen({ pr, token, repositoryFullName, onBack }: PRDeta
             {pr.body && (
               <div className="space-y-2">
                 <h4 className="font-medium">Descrição</h4>
-                <div className="bg-muted/30 p-3 rounded-md text-sm whitespace-pre-wrap">
-                  {pr.body}
+                <div className="bg-muted/30 p-3 rounded-md text-sm prose prose-sm max-w-none dark:prose-invert">
+                  <ReactMarkdown>{pr.body}</ReactMarkdown>
                 </div>
               </div>
             )}

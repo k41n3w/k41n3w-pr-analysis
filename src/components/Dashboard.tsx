@@ -15,7 +15,7 @@ import {
   ExternalLink,
   Loader2
 } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+
 import { MetricCard } from './MetricCard';
 import { PRTable } from './PRTable';
 import { UserMetricsTable } from './UserMetricsTable';
@@ -100,28 +100,6 @@ export function Dashboard({ token, repository, dateRange, onBack, onPRClick }: D
     }
   };
 
-  const chartData = analytics ? [
-    {
-      name: 'Abertura → 1ª Review',
-      value: Math.round(analytics.avgTimeToFirstReview * 10) / 10,
-      color: '#22c55e'
-    },
-    {
-      name: '1ª Review → Aprovação',
-      value: Math.round(analytics.avgTimeToApproval * 10) / 10,
-      color: '#3b82f6'
-    },
-    {
-      name: 'Aprovação → Merge',
-      value: Math.round((analytics.avgLifeCycle - analytics.avgTimeToApproval - analytics.avgTimeToFirstReview) * 10) / 10,
-      color: '#8b5cf6'
-    },
-    {
-      name: 'Tempo Total',
-      value: Math.round(analytics.avgLifeCycle * 10) / 10,
-      color: '#f59e0b'
-    }
-  ] : [];
 
   if (isLoading) {
     return (
@@ -249,36 +227,6 @@ export function Dashboard({ token, repository, dateRange, onBack, onPRClick }: D
               </div>
             </div>
 
-            {/* Terceira fileira - Gráfico de Distribuição */}
-            <Card className="shadow-card border-0 bg-card/50 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5" />
-                  Distribuição do Tempo no Ciclo de Vida (dias)
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="h-64">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData} layout="horizontal" margin={{ left: 120, right: 30, top: 5, bottom: 5 }}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis type="number" />
-                      <YAxis dataKey="name" type="category" width={110} />
-                      <Tooltip 
-                        formatter={(value: any) => [`${value} dias`, 'Tempo Médio']}
-                        labelStyle={{ color: 'hsl(var(--foreground))' }}
-                        contentStyle={{ 
-                          backgroundColor: 'hsl(var(--background))', 
-                          border: '1px solid hsl(var(--border))',
-                          borderRadius: '8px'
-                        }}
-                      />
-                      <Bar dataKey="value" fill="#3b82f6" />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
           </>
         )}
 
