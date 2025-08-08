@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Bot, Loader2, AlertTriangle } from 'lucide-react';
 import SupabaseService from '@/services/supabase';
-import { PrIaMetrics } from '@/lib/supabase';
+import { PrIaMetrics } from '@/services/supabase';
 
 interface PRIAMetricsProps {
   repository: string;

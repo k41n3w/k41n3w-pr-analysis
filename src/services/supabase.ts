@@ -1,4 +1,14 @@
-import { supabase, PrIaMetrics } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
+
+export type PrIaMetrics = {
+  repository: string;
+  pr_number: number;
+  ia_tool_used: string | null;
+  ia_usage_scenarios: string | null;
+  productivity_score: number | null;
+  productivity_reason: string | null;
+  updated_at?: string | null;
+};
 
 export class SupabaseService {
   async getPrMetrics(repository: string, prNumber: number): Promise<PrIaMetrics | null> {
@@ -9,7 +19,6 @@ export class SupabaseService {
         .eq('repository', repository)
         .eq('pr_number', prNumber)
         .order('updated_at', { ascending: false, nullsFirst: false })
-        .order('id', { ascending: false })
         .limit(1)
         .single();
 
