@@ -31,6 +31,7 @@ import {
 } from '@/types/github';
 import { getStatusColor, formatDays, calculateTimeMetrics } from '@/utils/analytics';
 import GitHubService from '@/services/github';
+import { PRIAMetrics } from '@/components/PRIAMetrics';
 
 interface PRDetailScreenProps {
   pr: GitHubPullRequest;
@@ -452,6 +453,12 @@ export function PRDetailScreen({ pr, token, repositoryFullName, onBack }: PRDeta
             </CardContent>
           </Card>
         )}
+
+        {/* Métricas de IA */}
+        <PRIAMetrics 
+          repository={repositoryFullName}
+          prNumber={pr.number}
+        />
       </div>
     </div>
   );
