@@ -139,7 +139,7 @@ export function PRIAMetrics({ repository, prNumber }: PRIAMetricsProps) {
                   <Badge 
                     className={`text-white ${getProductivityScoreColor(metrics.productivity_score)}`}
                   >
-                    {metrics.productivity_score}/100
+                    {metrics.productivity_score}/10
                   </Badge>
                 ) : (
                   <span className="text-sm text-muted-foreground">Não avaliado</span>
