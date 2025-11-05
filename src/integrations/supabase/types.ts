@@ -7,10 +7,10 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "12.2.3 (519615d)"
+    PostgrestVersion: "13.0.5"
   }
   public: {
     Tables: {
@@ -249,25 +249,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      check_table_exists: {
-        Args: { table_name: string }
-        Returns: boolean
-      }
-      create_saude_conecta_schema: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
+      check_table_exists: { Args: { table_name: string }; Returns: boolean }
+      create_saude_conecta_schema: { Args: never; Returns: boolean }
       create_user_profile: {
         Args: {
-          _id: string
-          _name: string
           _company_name: string
           _email: string
+          _id: string
+          _name: string
         }
         Returns: undefined
       }
       create_user_profile_preve_ai: {
-        Args: { _id: string; _name: string; _company: string }
+        Args: { _company: string; _id: string; _name: string }
         Returns: undefined
       }
       get_plan_name_from_price_id: {
@@ -278,45 +272,42 @@ export type Database = {
         Args: { comment_id: string }
         Returns: undefined
       }
-      increment_post_likes: {
-        Args: { post_id: string }
-        Returns: undefined
-      }
-      increment_post_views: {
-        Args: { post_id: string }
-        Returns: undefined
-      }
+      increment_post_likes: { Args: { post_id: string }; Returns: undefined }
+      increment_post_views: { Args: { post_id: string }; Returns: undefined }
       register_user: {
         Args: {
+          p_user_city: string
+          p_user_country?: string
+          p_user_email: string
           p_user_id: string
           p_user_name: string
-          p_user_email: string
-          p_user_city: string
           p_user_profile_type: string
-          p_user_country?: string
         }
         Returns: Json
       }
-      update_user_subscription_status: {
-        Args:
-          | {
+      update_user_subscription_status:
+        | {
+            Args: {
+              current_period_end?: number
               customer_id: string
-              subscription_id?: string
               price_id?: string
               status?: string
-              current_period_end?: number
+              subscription_id?: string
               trial_end?: number
             }
-          | {
+            Returns: undefined
+          }
+        | {
+            Args: {
+              current_period_end?: number
               customer_id: string
-              subscription_id?: string
               price_id?: string
               status?: string
-              current_period_end?: number
+              subscription_id?: string
               trial_end?: number
             }
-        Returns: undefined
-      }
+            Returns: undefined
+          }
     }
     Enums: {
       [_ in never]: never
