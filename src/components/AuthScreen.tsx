@@ -99,9 +99,19 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
               </Button>
             </form>
 
-            <div className="mt-6 pt-6 border-t border-border">
+            <div className="mt-6 pt-6 border-t border-border space-y-4">
+              <div className="bg-primary/10 border border-primary/20 rounded-lg p-3">
+                <p className="text-xs font-semibold text-primary mb-2">
+                  🎬 Modo Demonstração
+                </p>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Para testar o sistema sem um token do GitHub, use:<br />
+                  <code className="bg-muted px-2 py-1 rounded text-xs font-mono">demo_token_12345</code>
+                </p>
+              </div>
+              
               <p className="text-xs text-muted-foreground leading-relaxed">
-                <strong>Como criar um token:</strong><br />
+                <strong>Como criar um token real:</strong><br />
                 1. Vá para GitHub → Settings → Developer settings<br />
                 2. Clique em "Personal access tokens" → "Tokens (classic)"<br />
                 3. Gere um novo token com permissões: repo, user

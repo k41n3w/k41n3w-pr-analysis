@@ -1,4 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
+import { mockIAMetrics } from './mockIAMetrics';
+import { DEMO_TOKEN } from './mockData';
 
 export type PrIaMetrics = {
   repository: string;
@@ -11,7 +13,18 @@ export type PrIaMetrics = {
 };
 
 export class SupabaseService {
+  private isDemoMode: boolean;
+
+  constructor(token?: string) {
+    this.isDemoMode = token === DEMO_TOKEN;
+  }
+
   async getPrMetrics(repository: string, prNumber: number): Promise<PrIaMetrics | null> {
+    // Se estiver em modo demo, retorna dados mockados
+    if (this.isDemoMode) {
+      return mockIAMetrics[prNumber] || null;
+    }
+
     try {
       const { data, error } = await supabase
         .from('pr_metrics_v2')

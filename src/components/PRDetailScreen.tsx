@@ -458,6 +458,7 @@ export function PRDetailScreen({ pr, token, repositoryFullName, onBack }: PRDeta
         <PRIAMetrics 
           repository={repositoryFullName}
           prNumber={pr.number}
+          token={token}
         />
       </div>
     </div>

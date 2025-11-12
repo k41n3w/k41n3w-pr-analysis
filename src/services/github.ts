@@ -6,14 +6,25 @@ import {
   GitHubCommit,
   GitHubComment 
 } from '@/types/github';
+import { 
+  DEMO_TOKEN, 
+  mockUser, 
+  mockRepositories, 
+  mockPullRequests, 
+  generateMockReviews, 
+  generateMockCommits, 
+  generateMockComments 
+} from './mockData';
 
 const GITHUB_API_BASE = 'https://api.github.com';
 
 class GitHubService {
   private token: string;
+  private isDemoMode: boolean;
 
   constructor(token: string) {
     this.token = token;
+    this.isDemoMode = token === DEMO_TOKEN;
   }
 
   private async makeRequest<T>(endpoint: string): Promise<T> {
@@ -32,10 +43,16 @@ class GitHubService {
   }
 
   async validateToken(): Promise<GitHubUser> {
+    if (this.isDemoMode) {
+      return Promise.resolve(mockUser);
+    }
     return this.makeRequest<GitHubUser>('/user');
   }
 
   async getUserRepositories(): Promise<GitHubRepository[]> {
+    if (this.isDemoMode) {
+      return Promise.resolve(mockRepositories);
+    }
     const repos = await this.makeRequest<GitHubRepository[]>('/user/repos?sort=updated&per_page=100');
     return repos.filter(repo => !repo.private || repo.owner.login);
   }
@@ -46,6 +63,16 @@ class GitHubService {
     startDate: Date, 
     endDate: Date
   ): Promise<GitHubPullRequest[]> {
+    if (this.isDemoMode) {
+      // Filtrar PRs mockados por data
+      return Promise.resolve(
+        mockPullRequests.filter(pr => {
+          const createdAt = new Date(pr.created_at);
+          return createdAt >= startDate && createdAt <= endDate;
+        })
+      );
+    }
+
     const since = startDate.toISOString();
     let allPRs: GitHubPullRequest[] = [];
     let page = 1;
@@ -103,6 +130,13 @@ class GitHubService {
     repo: string, 
     prNumber: number
   ): Promise<GitHubPullRequest> {
+    if (this.isDemoMode) {
+      const pr = mockPullRequests.find(p => p.number === prNumber);
+      if (pr) {
+        return Promise.resolve(pr);
+      }
+      throw new Error('PR não encontrado');
+    }
     return this.makeRequest<GitHubPullRequest>(`/repos/${owner}/${repo}/pulls/${prNumber}`);
   }
 
@@ -111,6 +145,10 @@ class GitHubService {
     repo: string, 
     prNumber: number
   ): Promise<GitHubReview[]> {
+    if (this.isDemoMode) {
+      const reviewsMap = generateMockReviews();
+      return Promise.resolve(reviewsMap.get(prNumber) || []);
+    }
     return this.makeRequest<GitHubReview[]>(`/repos/${owner}/${repo}/pulls/${prNumber}/reviews`);
   }
 
@@ -119,6 +157,13 @@ class GitHubService {
     repo: string, 
     prNumber: number
   ): Promise<GitHubCommit[]> {
+    if (this.isDemoMode) {
+      const pr = mockPullRequests.find(p => p.number === prNumber);
+      if (pr) {
+        return Promise.resolve(generateMockCommits(pr));
+      }
+      return Promise.resolve([]);
+    }
     return this.makeRequest<GitHubCommit[]>(`/repos/${owner}/${repo}/pulls/${prNumber}/commits`);
   }
 
@@ -127,6 +172,13 @@ class GitHubService {
     repo: string, 
     prNumber: number
   ): Promise<GitHubComment[]> {
+    if (this.isDemoMode) {
+      const pr = mockPullRequests.find(p => p.number === prNumber);
+      if (pr) {
+        return Promise.resolve(generateMockComments(pr));
+      }
+      return Promise.resolve([]);
+    }
     return this.makeRequest<GitHubComment[]>(`/repos/${owner}/${repo}/issues/${prNumber}/comments`);
   }
 
@@ -135,6 +187,14 @@ class GitHubService {
     repo: string,
     since: string
   ): Promise<GitHubComment[]> {
+    if (this.isDemoMode) {
+      // Retorna comentários de todos os PRs mockados
+      const allComments: GitHubComment[] = [];
+      mockPullRequests.forEach(pr => {
+        allComments.push(...generateMockComments(pr));
+      });
+      return Promise.resolve(allComments);
+    }
     return this.makeRequest<GitHubComment[]>(`/repos/${owner}/${repo}/issues/comments?since=${since}&per_page=100`);
   }
 }

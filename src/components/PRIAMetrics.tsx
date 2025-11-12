@@ -9,9 +9,10 @@ import { PrIaMetrics } from '@/services/supabase';
 interface PRIAMetricsProps {
   repository: string;
   prNumber: number;
+  token: string;
 }
 
-export function PRIAMetrics({ repository, prNumber }: PRIAMetricsProps) {
+export function PRIAMetrics({ repository, prNumber, token }: PRIAMetricsProps) {
   const [metrics, setMetrics] = useState<PrIaMetrics | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -24,7 +25,7 @@ export function PRIAMetrics({ repository, prNumber }: PRIAMetricsProps) {
     try {
       setIsLoading(true);
       setError(null);
-      const supabaseService = new SupabaseService();
+      const supabaseService = new SupabaseService(token);
       const result = await supabaseService.getPrMetrics(repository, prNumber);
       setMetrics(result);
     } catch (err: any) {
